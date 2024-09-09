@@ -40,7 +40,7 @@ export const deleteAdquirientes = async (req, res) => {
         return res.status(500).json({ message: "Something goes wrong" });
     }
 };
-/*
+
 export const createAdquiriente = async (req, res) => {
     try {
         const { documento, tipo, nombre, correo, direccion, fecha } = req.body;
@@ -54,8 +54,8 @@ export const createAdquiriente = async (req, res) => {
         return res.status(500).json({ message: "Something goes wrong" });
     }
 };
-*/
 
+/*
 export const createAdquiriente = async (req, res) => {
     try {
       const { documento, tipo, nombre, correo, direccion, fecha } = req.body;
@@ -90,7 +90,7 @@ export const createAdquiriente = async (req, res) => {
       return res.status(500).json({ message: "Something goes wrong" });
     }
   };
-
+*/
 export const updateAdquiriente = async (req, res) => {
     try {
         const { id } = req.params;
