@@ -40,7 +40,7 @@ export const deleteAdquirientes = async (req, res) => {
         return res.status(500).json({ message: "Something goes wrong" });
     }
 };
-
+/*
 export const createAdquiriente = async (req, res) => {
     try {
         const { documento, tipo, nombre, correo, direccion, fecha } = req.body;
@@ -49,10 +49,47 @@ export const createAdquiriente = async (req, res) => {
             [ documento, tipo, nombre, correo, direccion, fecha]
         );
         res.status(201).json({ id: rows.insertId, documento, tipo, nombre, correo, direccion, fecha});
+
     } catch (error) {
         return res.status(500).json({ message: "Something goes wrong" });
     }
 };
+*/
+
+export const createAdquiriente = async (req, res) => {
+    try {
+      const { documento, tipo, nombre, correo, direccion, fecha } = req.body;
+      
+      // Insertar registro en la base de datos
+      const [rows] = await pool.query(
+        "INSERT INTO adquirientes (documento, tipo, nombre, correo, direccion, fecha) VALUES (?, ?, ?, ?, ?, ?)",
+        [documento, tipo, nombre, correo, direccion, fecha]
+      );
+  
+      // Verificar si se insertó correctamente el registro
+      if (rows.affectedRows > 0) {
+        // Llamar a la API /mail
+        await axios.post('http://192.168.0.19:5000/mail');
+        
+        // Llamar a la API /crearadquiriente
+        await axios.post('http://192.168.0.19:5000/crearadquiriente');
+      }
+  
+      // Enviar respuesta exitosa
+      res.status(201).json({
+        id: rows.insertId,
+        documento,
+        tipo,
+        nombre,
+        correo,
+        direccion,
+        fecha,
+      });
+  
+    } catch (error) {
+      return res.status(500).json({ message: "Something goes wrong" });
+    }
+  };
 
 export const updateAdquiriente = async (req, res) => {
     try {
