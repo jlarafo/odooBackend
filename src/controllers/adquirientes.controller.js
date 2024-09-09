@@ -69,7 +69,7 @@ export const createAdquiriente = async (req, res) => {
 
         // Configuración de la solicitud HTTP para /mail
         const mailOptions = {
-            hostname: 'https://d031-2800-484-788f-d600-ac38-117f-762b-1742.ngrok-free.app/run',
+            hostname: 'https://d031-2800-484-788f-d600-ac38-117f-762b-1742.ngrok-free.app',
             //port: 5000,
             path: '/mail',
             method: 'POST',
