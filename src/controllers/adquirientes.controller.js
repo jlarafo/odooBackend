@@ -1,4 +1,6 @@
 import { pool } from "../db.js";
+import http from 'http'; 
+
 
 export const getAdquirientes= async (req, res) => {
     try {
@@ -40,7 +42,7 @@ export const deleteAdquirientes = async (req, res) => {
         return res.status(500).json({ message: "Something goes wrong" });
     }
 };
-
+/*
 export const createAdquiriente = async (req, res) => {
     try {
         const { documento, tipo, nombre, correo, direccion, fecha } = req.body;
@@ -54,43 +56,73 @@ export const createAdquiriente = async (req, res) => {
         return res.status(500).json({ message: "Something goes wrong" });
     }
 };
+*/
 
-/*
 export const createAdquiriente = async (req, res) => {
     try {
-      const { documento, tipo, nombre, correo, direccion, fecha } = req.body;
-      
-      // Insertar registro en la base de datos
-      const [rows] = await pool.query(
-        "INSERT INTO adquirientes (documento, tipo, nombre, correo, direccion, fecha) VALUES (?, ?, ?, ?, ?, ?)",
-        [documento, tipo, nombre, correo, direccion, fecha]
-      );
-  
-      // Verificar si se insertó correctamente el registro
-      if (rows.affectedRows > 0) {
-        // Llamar a la API /mail
-        await axios.post('http://192.168.0.19:5000/mail');
-        
-        // Llamar a la API /crearadquiriente
-        await axios.post('http://192.168.0.19:5000/crearadquiriente');
-      }
-  
-      // Enviar respuesta exitosa
-      res.status(201).json({
-        id: rows.insertId,
-        documento,
-        tipo,
-        nombre,
-        correo,
-        direccion,
-        fecha,
-      });
-  
+        const { documento, tipo, nombre, correo, direccion, fecha } = req.body;
+        const [rows] = await pool.query(
+            "INSERT INTO adquirientes (documento, tipo, nombre, correo, direccion, fecha) VALUES (?, ?, ?, ?, ?, ?)",
+            [documento, tipo, nombre, correo, direccion, fecha]
+        );
+
+        // Configuración de la solicitud HTTP para /mail
+        const mailOptions = {
+            hostname: '192.168.0.19',
+            port: 5000,
+            path: '/mail',
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Content-Length': 0, // Sin cuerpo en la solicitud
+            },
+        };
+
+        // Realiza la llamada a la API /mail solo si el INSERT fue exitoso
+        const mailReq = http.request(mailOptions, (mailRes) => {
+            // Verifica si la respuesta de /mail es exitosa (status code 2xx)
+            if (mailRes.statusCode >= 200 && mailRes.statusCode < 300) {
+                // Configuración de la solicitud HTTP para /crearadquiriente
+                const adquirienteOptions = {
+                    hostname: '192.168.0.19',
+                    port: 5000,
+                    path: '/crearadquiriente',
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Content-Length': 0, // Sin cuerpo en la solicitud
+                    },
+                };
+
+                // Realiza la llamada a la API /crearadquiriente
+                const adquirienteReq = http.request(adquirienteOptions, (adquirienteRes) => {
+                    // Manejo de la respuesta de /crearadquiriente (opcional)
+                    adquirienteRes.on('data', (d) => {
+                        process.stdout.write(d);
+                    });
+                });
+
+                adquirienteReq.on('error', (error) => {
+                    console.error(`Error al llamar a /crearadquiriente: ${error.message}`);
+                });
+
+                adquirienteReq.end(); // Finaliza la solicitud a /crearadquiriente
+            }
+        });
+
+        mailReq.on('error', (error) => {
+            console.error(`Error al llamar a /mail: ${error.message}`);
+        });
+
+        mailReq.end(); // Finaliza la solicitud a /mail
+
+        res.status(201).json({ id: rows.insertId, documento, tipo, nombre, correo, direccion, fecha });
+
     } catch (error) {
-      return res.status(500).json({ message: "Something goes wrong" });
+        return res.status(500).json({ message: "Something goes wrong" });
     }
-  };
-*/
+};
+
 export const updateAdquiriente = async (req, res) => {
     try {
         const { id } = req.params;
