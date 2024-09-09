@@ -1,3 +1,4 @@
+import { hostname } from "os";
 import { pool } from "../db.js";
 import http from 'http'; 
 
@@ -68,8 +69,8 @@ export const createAdquiriente = async (req, res) => {
 
         // Configuración de la solicitud HTTP para /mail
         const mailOptions = {
-            hostname: '192.168.0.19',
-            port: 5000,
+            hostname: 'https://d031-2800-484-788f-d600-ac38-117f-762b-1742.ngrok-free.app/run',
+            //port: 5000,
             path: '/mail',
             method: 'POST',
             headers: {
@@ -84,8 +85,9 @@ export const createAdquiriente = async (req, res) => {
             if (mailRes.statusCode >= 200 && mailRes.statusCode < 300) {
                 // Configuración de la solicitud HTTP para /crearadquiriente
                 const adquirienteOptions = {
-                    hostname: '192.168.0.19',
-                    port: 5000,
+                    //hostname: '192.168.0.19',
+                    hostname: 'https://d031-2800-484-788f-d600-ac38-117f-762b-1742.ngrok-free.app',
+                    //port: 5000,
                     path: '/crearadquiriente',
                     method: 'POST',
                     headers: {
