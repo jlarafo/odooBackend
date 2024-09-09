@@ -1,23 +1,19 @@
-import { hostname } from "os";
 import { pool } from "../db.js";
-import http from 'http'; 
+import https from 'https'; // Cambiado de http a https para manejar URLs https
 
-
-export const getAdquirientes= async (req, res) => {
+export const getAdquirientes = async (req, res) => {
     try {
         const [rows] = await pool.query("SELECT * FROM adquirientes");
         res.json(rows);
     } catch (error) {
-        return res.status(500).json({ message: "Something goes wrong" });
+        return res.status(500).json({ message: "Something went wrong" });
     }
 };
 
 export const getAdquiriente = async (req, res) => {
     try {
         const { id } = req.params;
-        const [rows] = await pool.query("SELECT * FROM adquirientes WHERE id = ?", [
-            id,
-        ]);
+        const [rows] = await pool.query("SELECT * FROM adquirientes WHERE id = ?", [id]);
 
         if (rows.length <= 0) {
             return res.status(404).json({ message: "Adquiriente not found" });
@@ -25,7 +21,7 @@ export const getAdquiriente = async (req, res) => {
 
         res.json(rows[0]);
     } catch (error) {
-        return res.status(500).json({ message: "Something goes wrong" });
+        return res.status(500).json({ message: "Something went wrong" });
     }
 };
 
@@ -35,29 +31,14 @@ export const deleteAdquirientes = async (req, res) => {
         const [rows] = await pool.query("DELETE FROM adquirientes WHERE id = ?", [id]);
 
         if (rows.affectedRows <= 0) {
-            return res.status(404).json({ message: "adquiriente not found" });
+            return res.status(404).json({ message: "Adquiriente not found" });
         }
 
         res.sendStatus(204);
     } catch (error) {
-        return res.status(500).json({ message: "Something goes wrong" });
+        return res.status(500).json({ message: "Something went wrong" });
     }
 };
-/*
-export const createAdquiriente = async (req, res) => {
-    try {
-        const { documento, tipo, nombre, correo, direccion, fecha } = req.body;
-        const [rows] = await pool.query(
-            "INSERT INTO adquirientes (documento, tipo, nombre, correo, direccion, fecha) VALUES (?, ?, ?, ?, ?, ?)",
-            [ documento, tipo, nombre, correo, direccion, fecha]
-        );
-        res.status(201).json({ id: rows.insertId, documento, tipo, nombre, correo, direccion, fecha});
-
-    } catch (error) {
-        return res.status(500).json({ message: "Something goes wrong" });
-    }
-};
-*/
 
 export const createAdquiriente = async (req, res) => {
     try {
@@ -69,36 +50,31 @@ export const createAdquiriente = async (req, res) => {
 
         // Configuración de la solicitud HTTP para /mail
         const mailOptions = {
-            hostname: 'https://d031-2800-484-788f-d600-ac38-117f-762b-1742.ngrok-free.app',
-            //port: 5000,
+            hostname: 'd031-2800-484-788f-d600-ac38-117f-762b-1742.ngrok-free.app',
             path: '/mail',
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Content-Length': 0, // Sin cuerpo en la solicitud
+                'Content-Length': 0, // Cambiar esto si necesitas enviar datos
             },
         };
 
         // Realiza la llamada a la API /mail solo si el INSERT fue exitoso
-        const mailReq = http.request(mailOptions, (mailRes) => {
-            // Verifica si la respuesta de /mail es exitosa (status code 2xx)
+        const mailReq = https.request(mailOptions, (mailRes) => {
             if (mailRes.statusCode >= 200 && mailRes.statusCode < 300) {
                 // Configuración de la solicitud HTTP para /crearadquiriente
                 const adquirienteOptions = {
-                    //hostname: '192.168.0.19',
-                    hostname: 'https://d031-2800-484-788f-d600-ac38-117f-762b-1742.ngrok-free.app',
-                    //port: 5000,
+                    hostname: 'd031-2800-484-788f-d600-ac38-117f-762b-1742.ngrok-free.app',
                     path: '/crearadquiriente',
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                        'Content-Length': 0, // Sin cuerpo en la solicitud
+                        'Content-Length': 0, // Cambiar esto si necesitas enviar datos
                     },
                 };
 
                 // Realiza la llamada a la API /crearadquiriente
-                const adquirienteReq = http.request(adquirienteOptions, (adquirienteRes) => {
-                    // Manejo de la respuesta de /crearadquiriente (opcional)
+                const adquirienteReq = https.request(adquirienteOptions, (adquirienteRes) => {
                     adquirienteRes.on('data', (d) => {
                         process.stdout.write(d);
                     });
@@ -108,7 +84,7 @@ export const createAdquiriente = async (req, res) => {
                     console.error(`Error al llamar a /crearadquiriente: ${error.message}`);
                 });
 
-                adquirienteReq.end(); // Finaliza la solicitud a /crearadquiriente
+                adquirienteReq.end();
             }
         });
 
@@ -116,12 +92,12 @@ export const createAdquiriente = async (req, res) => {
             console.error(`Error al llamar a /mail: ${error.message}`);
         });
 
-        mailReq.end(); // Finaliza la solicitud a /mail
+        mailReq.end();
 
         res.status(201).json({ id: rows.insertId, documento, tipo, nombre, correo, direccion, fecha });
 
     } catch (error) {
-        return res.status(500).json({ message: "Something goes wrong" });
+        return res.status(500).json({ message: "Something went wrong" });
     }
 };
 
@@ -138,12 +114,10 @@ export const updateAdquiriente = async (req, res) => {
         if (result.affectedRows === 0)
             return res.status(404).json({ message: "Adquiriente not found" });
 
-        const [rows] = await pool.query("SELECT * FROM adquirientes WHERE id = ?", [
-            id,
-        ]);
+        const [rows] = await pool.query("SELECT * FROM adquirientes WHERE id = ?", [id]);
 
         res.json(rows[0]);
     } catch (error) {
-        return res.status(500).json({ message: "Something goes wrong" });
+        return res.status(500).json({ message: "Something went wrong" });
     }
 };
