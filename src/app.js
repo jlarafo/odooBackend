@@ -10,7 +10,8 @@ const app = express();
 
 // Configuración de CORS
 const corsOptions = {
-  origin: 'http://localhost:3000', // Reemplazar con el origen de la aplicación
+  //origin: 'http://localhost:3000', // Reemplazar con el origen de la aplicación
+  origin: '*', // Permitir cualquier origen
   optionsSuccessStatus: 200,
 };
 app.use(cors(corsOptions)); // Usar cors con las opciones configuradas
