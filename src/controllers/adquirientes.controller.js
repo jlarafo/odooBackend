@@ -52,6 +52,7 @@ export const createAdquiriente = async (req, res) => {
         const mailOptions = {
             //hostname: 'd031-2800-484-788f-d600-ac38-117f-762b-1742.ngrok-free.app',
             hostname: '192.168.0.19',
+            port: 5000,
             path: '/mail',
             method: 'POST',
             headers: {
@@ -67,6 +68,7 @@ export const createAdquiriente = async (req, res) => {
                 const adquirienteOptions = {
                     //hostname: 'd031-2800-484-788f-d600-ac38-117f-762b-1742.ngrok-free.app',
                     hostname: '192.168.0.19',
+                    port: 5000,
                     path: '/crearadquiriente',
                     method: 'POST',
                     headers: {
