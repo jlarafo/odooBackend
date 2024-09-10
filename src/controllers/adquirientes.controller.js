@@ -50,7 +50,8 @@ export const createAdquiriente = async (req, res) => {
 
         // Configuración de la solicitud HTTP para /mail
         const mailOptions = {
-            hostname: 'd031-2800-484-788f-d600-ac38-117f-762b-1742.ngrok-free.app',
+            //hostname: 'd031-2800-484-788f-d600-ac38-117f-762b-1742.ngrok-free.app',
+            hostname: '192.168.0.19',
             path: '/mail',
             method: 'POST',
             headers: {
@@ -64,7 +65,8 @@ export const createAdquiriente = async (req, res) => {
             if (mailRes.statusCode >= 200 && mailRes.statusCode < 300) {
                 // Configuración de la solicitud HTTP para /crearadquiriente
                 const adquirienteOptions = {
-                    hostname: 'd031-2800-484-788f-d600-ac38-117f-762b-1742.ngrok-free.app',
+                    //hostname: 'd031-2800-484-788f-d600-ac38-117f-762b-1742.ngrok-free.app',
+                    hostname: '192.168.0.19',
                     path: '/crearadquiriente',
                     method: 'POST',
                     headers: {
