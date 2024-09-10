@@ -64,31 +64,34 @@ export const createAdquiriente = async (req, res) => {
         // Realiza la llamada a la API /mail solo si el INSERT fue exitoso
         const mailReq = https.request(mailOptions, (mailRes) => {
             if (mailRes.statusCode >= 200 && mailRes.statusCode < 300) {
-                // Configuración de la solicitud HTTP para /crearadquiriente
-                const adquirienteOptions = {
-                    hostname: '3417-2800-484-788f-d600-d956-9a8a-f3bb-38b6.ngrok-free.app',
-                    //hostname: '192.168.0.19',
-                    //port: 5000,
-                    path: '/crearadquiriente',
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Content-Length': 0, // Cambiar esto si necesitas enviar datos
-                    },
-                };
+                // Espera de 3 segundos antes de llamar a /crearadquiriente
+                setTimeout(() => {
+                    // Configuración de la solicitud HTTP para /crearadquiriente
+                    const adquirienteOptions = {
+                        hostname: '3417-2800-484-788f-d600-d956-9a8a-f3bb-38b6.ngrok-free.app',
+                        //hostname: '192.168.0.19',
+                        //port: 5000,
+                        path: '/crearadquiriente',
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Content-Length': 0, // Cambiar esto si necesitas enviar datos
+                        },
+                    };
 
-                // Realiza la llamada a la API /crearadquiriente
-                const adquirienteReq = https.request(adquirienteOptions, (adquirienteRes) => {
-                    adquirienteRes.on('data', (d) => {
-                        process.stdout.write(d);
+                    // Realiza la llamada a la API /crearadquiriente
+                    const adquirienteReq = https.request(adquirienteOptions, (adquirienteRes) => {
+                        adquirienteRes.on('data', (d) => {
+                            process.stdout.write(d);
+                        });
                     });
-                });
 
-                adquirienteReq.on('error', (error) => {
-                    console.error(`Error al llamar a /crearadquiriente: ${error.message}`);
-                });
+                    adquirienteReq.on('error', (error) => {
+                        console.error(`Error al llamar a /crearadquiriente: ${error.message}`);
+                    });
 
-                adquirienteReq.end();
+                    adquirienteReq.end();
+                }, 3000); // 3000 milisegundos = 3 segundos
             }
         });
 
@@ -104,6 +107,7 @@ export const createAdquiriente = async (req, res) => {
         return res.status(500).json({ message: "Something went wrong" });
     }
 };
+
 
 export const updateAdquiriente = async (req, res) => {
     try {
