@@ -40,72 +40,88 @@ export const deleteAdquirientes = async (req, res) => {
     }
 };
 
+
+const MAX_RETRIES = 3; // Número máximo de intentos para las solicitudes HTTP
+
+// Función para realizar un intento con reintento
+const performRequestWithRetry = (options, attempt = 1) =>
+  new Promise((resolve, reject) => {
+    const req = https.request(options, (res) => {
+      if (res.statusCode >= 200 && res.statusCode < 300) {
+        resolve();
+      } else if (attempt < MAX_RETRIES) {
+        console.log(`Intento ${attempt} fallido, reintentando...`);
+        setTimeout(() => resolve(performRequestWithRetry(options, attempt + 1)), 2000); // Reintentar después de 2 segundos
+      } else {
+        reject(new Error(`Request failed after ${MAX_RETRIES} attempts`));
+      }
+    });
+
+    req.on('error', (error) => {
+      if (attempt < MAX_RETRIES) {
+        console.log(`Error: ${error.message}. Reintentando intento ${attempt + 1}`);
+        setTimeout(() => resolve(performRequestWithRetry(options, attempt + 1)), 2000);
+      } else {
+        reject(new Error(`Request failed after ${MAX_RETRIES} attempts: ${error.message}`));
+      }
+    });
+
+    req.end();
+  });
+
 export const createAdquiriente = async (req, res) => {
-    try {
-        const { documento, tipo, nombre, correo, direccion, fecha } = req.body;
-        const [rows] = await pool.query(
-            "INSERT INTO adquirientes (documento, tipo, nombre, correo, direccion, fecha) VALUES (?, ?, ?, ?, ?, ?)",
-            [documento, tipo, nombre, correo, direccion, fecha]
-        );
+  const { documento, tipo, nombre, correo, direccion, fecha } = req.body;
 
-        // Configuración de la solicitud HTTP para /mail
-        const mailOptions = {
-            //hostname: '6893-2800-484-788f-d600-d956-9a8a-f3bb-38b6.ngrok-free.app',
-            hostname: '0430-2800-484-788f-d600-6849-c465-cfeb-fafb.ngrok-free.app',
-            //port: 5000,
-            path: '/crearadquiriente',
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Content-Length': 0, // Cambiar esto si necesitas enviar datos
-            },
-        };
+  try {
+    // Iniciar transacción
+    await pool.query("START TRANSACTION");
 
-        // Realiza la llamada a la API /mail solo si el INSERT fue exitoso
-        const mailReq = https.request(mailOptions, (mailRes) => {
-            if (mailRes.statusCode >= 200 && mailRes.statusCode < 300) {
-                // Espera de 3 segundos antes de llamar a /crearadquiriente
-                setTimeout(() => {
-                    // Configuración de la solicitud HTTP para /crearadquiriente
-                    const adquirienteOptions = {
-                        //hostname: '6893-2800-484-788f-d600-d956-9a8a-f3bb-38b6.ngrok-free.app',
-                        hostname: '0430-2800-484-788f-d600-6849-c465-cfeb-fafb.ngrok-free.app',
-                        //port: 5000,
-                        path: '/crearadquiriente',
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'Content-Length': 0, // Cambiar esto si necesitas enviar datos
-                        },
-                    };
+    const [rows] = await pool.query(
+      "INSERT INTO adquirientes (documento, tipo, nombre, correo, direccion, fecha) VALUES (?, ?, ?, ?, ?, ?)",
+      [documento, tipo, nombre, correo, direccion, fecha]
+    );
 
-                    // Realiza la llamada a la API /crearadquiriente
-                    const adquirienteReq = https.request(adquirienteOptions, (adquirienteRes) => {
-                        adquirienteRes.on('data', (d) => {
-                            process.stdout.write(d);
-                        });
-                    });
+    // Configuración de la solicitud HTTP para /mail
+    const mailOptions = {
+      hostname: '0430-2800-484-788f-d600-6849-c465-cfeb-fafb.ngrok-free.app',
+      path: '/mail',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': 0,
+      },
+    };
 
-                    adquirienteReq.on('error', (error) => {
-                        console.error(`Error al llamar a /crearadquiriente: ${error.message}`);
-                    });
+    // Realizar la llamada a /mail con reintento
+    await performRequestWithRetry(mailOptions);
 
-                    adquirienteReq.end();
-                }, 4000); // 3000 milisegundos = 3 segundos
-            }
-        });
+    // Esperar 4 segundos antes de realizar la llamada a /crearadquiriente
+    await new Promise((resolve) => setTimeout(resolve, 4000));
 
-        mailReq.on('error', (error) => {
-            console.error(`Error al llamar a /mail: ${error.message}`);
-        });
+    // Configuración de la solicitud HTTP para /crearadquiriente
+    const adquirienteOptions = {
+      hostname: '0430-2800-484-788f-d600-6849-c465-cfeb-fafb.ngrok-free.app',
+      path: '/crearadquiriente',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Content-Length': 0,
+      },
+    };
 
-        mailReq.end();
+    // Realizar la llamada a /crearadquiriente con reintento
+    await performRequestWithRetry(adquirienteOptions);
 
-        res.status(201).json({ id: rows.insertId, documento, tipo, nombre, correo, direccion, fecha });
+    // Confirmar transacción
+    await pool.query("COMMIT");
 
-    } catch (error) {
-        return res.status(500).json({ message: "Something went wrong" });
-    }
+    res.status(201).json({ id: rows.insertId, documento, tipo, nombre, correo, direccion, fecha });
+  } catch (error) {
+    // Revertir transacción si hay algún error
+    await pool.query("ROLLBACK");
+    console.error(`Error: ${error.message}`);
+    res.status(500).json({ message: "Something went wrong" });
+  }
 };
 
 
