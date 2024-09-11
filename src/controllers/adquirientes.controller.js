@@ -61,18 +61,18 @@ const performRequestWithRetry = (options, attempt = 1) =>
     req.on('error', (error) => {
       if (attempt < MAX_RETRIES) {
         console.log(`Error: ${error.message}. Reintentando intento ${attempt + 1}`);
-        setTimeout(() => resolve(performRequestWithRetry(options, attempt + 1)), 2000);
+        setTimeout(() => resolve(performRequestWithRetry(options, attempt + 1)), 15000);
       } else {
         reject(new Error(`Request failed after ${MAX_RETRIES} attempts: ${error.message}`));
       }
     });
 
-    /*
+    
     req.on('timeout', () => {
       req.abort(); // Cancela la solicitud si se excede el tiempo de espera
       reject(new Error('Request timed out'));
     });
-    */
+    
 
     req.end();
   });
