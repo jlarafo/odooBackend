@@ -67,10 +67,12 @@ const performRequestWithRetry = (options, attempt = 1) =>
       }
     });
 
+    /*
     req.on('timeout', () => {
       req.abort(); // Cancela la solicitud si se excede el tiempo de espera
       reject(new Error('Request timed out'));
     });
+    */
 
     req.end();
   });
