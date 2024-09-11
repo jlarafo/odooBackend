@@ -51,7 +51,7 @@ export const createAdquiriente = async (req, res) => {
         // Configuración de la solicitud HTTP para /mail
         const mailOptions = {
             //hostname: '6893-2800-484-788f-d600-d956-9a8a-f3bb-38b6.ngrok-free.app',
-            hostname: '0430-2800-484-788f-d600-6849-c465-cfeb-fafb.ngrok-free.app ',
+            hostname: '0430-2800-484-788f-d600-6849-c465-cfeb-fafb.ngrok-free.app',
             //port: 5000,
             path: '/mail',
             method: 'POST',
@@ -69,7 +69,7 @@ export const createAdquiriente = async (req, res) => {
                     // Configuración de la solicitud HTTP para /crearadquiriente
                     const adquirienteOptions = {
                         //hostname: '6893-2800-484-788f-d600-d956-9a8a-f3bb-38b6.ngrok-free.app',
-                        hostname: '0430-2800-484-788f-d600-6849-c465-cfeb-fafb.ngrok-free.app ',
+                        hostname: '0430-2800-484-788f-d600-6849-c465-cfeb-fafb.ngrok-free.app',
                         //port: 5000,
                         path: '/crearadquiriente',
                         method: 'POST',
