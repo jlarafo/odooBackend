@@ -46,12 +46,13 @@ const MAX_RETRIES = 3; // Número máximo de intentos para las solicitudes HTTP
 // Función para realizar un intento con reintento
 const performRequestWithRetry = (options, attempt = 1) =>
   new Promise((resolve, reject) => {
-    const req = https.request(options, (res) => {
+    // Añadir un timeout más largo
+    const req = https.request({ ...options, timeout: 60000 }, (res) => {
       if (res.statusCode >= 200 && res.statusCode < 300) {
         resolve();
       } else if (attempt < MAX_RETRIES) {
         console.log(`Intento ${attempt} fallido, reintentando...`);
-        setTimeout(() => resolve(performRequestWithRetry(options, attempt + 1)), 25000); // Reintentar después de 2 segundos
+        setTimeout(() => resolve(performRequestWithRetry(options, attempt + 1)), 5000); // Reintentar después de 5 segundos
       } else {
         reject(new Error(`Request failed after ${MAX_RETRIES} attempts`));
       }
@@ -64,6 +65,11 @@ const performRequestWithRetry = (options, attempt = 1) =>
       } else {
         reject(new Error(`Request failed after ${MAX_RETRIES} attempts: ${error.message}`));
       }
+    });
+
+    req.on('timeout', () => {
+      req.abort(); // Cancela la solicitud si se excede el tiempo de espera
+      reject(new Error('Request timed out'));
     });
 
     req.end();
