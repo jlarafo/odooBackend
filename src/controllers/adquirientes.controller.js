@@ -53,7 +53,7 @@ export const createAdquiriente = async (req, res) => {
             //hostname: '6893-2800-484-788f-d600-d956-9a8a-f3bb-38b6.ngrok-free.app',
             hostname: '0430-2800-484-788f-d600-6849-c465-cfeb-fafb.ngrok-free.app',
             //port: 5000,
-            path: '/mail',
+            path: '/crearadquiriente',
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -91,7 +91,7 @@ export const createAdquiriente = async (req, res) => {
                     });
 
                     adquirienteReq.end();
-                }, 8000); // 3000 milisegundos = 3 segundos
+                }, 4000); // 3000 milisegundos = 3 segundos
             }
         });
 
