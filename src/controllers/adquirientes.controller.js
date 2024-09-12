@@ -52,7 +52,7 @@ const performRequestWithRetry = (options, attempt = 1) =>
         resolve();
       } else if (attempt < MAX_RETRIES) {
         console.log(`Intento ${attempt} fallido, reintentando...`);
-        setTimeout(() => resolve(performRequestWithRetry(options, attempt + 1)), 40000); // Reintentar después de 40 segundos
+        setTimeout(() => resolve(performRequestWithRetry(options, attempt + 1)), 4000); // Reintentar después de 40 segundos
       } else {
         reject(new Error(`Request failed after ${MAX_RETRIES} attempts`));
       }
@@ -61,7 +61,7 @@ const performRequestWithRetry = (options, attempt = 1) =>
     req.on('error', (error) => {
       if (attempt < MAX_RETRIES) {
         console.log(`Error: ${error.message}. Reintentando intento ${attempt + 1}`);
-        setTimeout(() => resolve(performRequestWithRetry(options, attempt + 1)), 40000);
+        setTimeout(() => resolve(performRequestWithRetry(options, attempt + 1)), 4000);
       } else {
         reject(new Error(`Request failed after ${MAX_RETRIES} attempts: ${error.message}`));
       }
