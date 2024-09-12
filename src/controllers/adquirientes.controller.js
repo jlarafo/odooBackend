@@ -102,7 +102,7 @@ export const createAdquiriente = (req, res) => {
 
       // Realizar la llamada a /mail con reintento
       return performRequestWithRetry(mailOptions)
-        .then(() => new Promise((resolve) => setTimeout(resolve, 4000))) // Esperar 4 segundos
+        .then(() => new Promise((resolve) => setTimeout(resolve, 40000))) // Esperar 4 segundos
         .then(() => rows); // Devolver las filas
     })
     .then((rows) => {
