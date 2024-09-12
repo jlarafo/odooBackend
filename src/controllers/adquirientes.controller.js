@@ -43,7 +43,7 @@ export const deleteAdquirientes = async (req, res) => {
 
 const MAX_RETRIES = 3; // Número máximo de intentos para las solicitudes HTTP
 
-// Función para realizar un intento con reintento
+// Función para realizar un intento con reintentoo
 const performRequestWithRetry = (options, attempt = 1) =>
   new Promise((resolve, reject) => {
     // Añadir un timeout más largo
